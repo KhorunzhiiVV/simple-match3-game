@@ -14,6 +14,8 @@ public class ColorGem : MonoBehaviour
         MAGENTA
     }
 
+    
+
     [System.Serializable]
     public struct ColorSprite
     {

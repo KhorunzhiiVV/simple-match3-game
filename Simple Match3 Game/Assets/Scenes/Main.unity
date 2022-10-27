@@ -240,6 +240,16 @@ MonoBehaviour:
   _yDimension: 5
   _backgroundPrefab: {fileID: 548949733627489687, guid: 6ba8ed3fba4d05d4fb852507e3ea1453, type: 3}
   _gemPrefab: {fileID: 7462036513138084276, guid: c3e21744953765d4892f77a3eb773a79, type: 3}
+  _gemPrefabs:
+  - Type: 0
+    PiecePrefab: {fileID: 2615990587898748642, guid: c3cb7c1846a45f14094f4278714aa2cb, type: 3}
+  - Type: 1
+    PiecePrefab: {fileID: 7462036513138084276, guid: c3e21744953765d4892f77a3eb773a79, type: 3}
+  - Type: 2
+    PiecePrefab: {fileID: 8591839813021371327, guid: 2416e6759b9ad694bbdbc592db50d33d, type: 3}
+  - Type: 3
+    PiecePrefab: {fileID: 6593923464700770136, guid: edb12c0ea60f6b54b8749ceff5d215a4, type: 3}
+  _fillTime: 0.1
 --- !u!4 &1648857410
 Transform:
   m_ObjectHideFlags: 0

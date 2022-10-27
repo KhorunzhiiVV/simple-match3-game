@@ -40,10 +40,42 @@ public class Gem : MonoBehaviour
 	private ColorGem _colorComponent;
 	public ColorGem ColorComponent { get { return _colorComponent; } }
 
+    private ClearableGem _clearableGem;
+    public ClearableGem ClearableGem { get { return _clearableGem; } }
+
+	private bool _isEpic = false;
+    public bool IsEpic
+    {
+        get { return _isEpic; }
+        set 
+        { 
+            _isEpic = value;
+            if (_isLegendary == true)
+            {
+                _isLegendary = false;
+            }
+        }
+    }
+	private bool _isLegendary = false;
+    public bool IsLegendary
+    {
+        get { return _isLegendary; }
+        set
+        {
+            _isLegendary = value;
+            if (_isEpic == true)
+            {
+                _isEpic = false;
+            }
+        }
+    }
+
+
 	private void Awake()
     {
         _movableComponent = GetComponent<MovableGem>();
         _colorComponent = GetComponent<ColorGem>();
+        _clearableGem = GetComponent<ClearableGem>();
     }
 
 
@@ -75,4 +107,16 @@ public class Gem : MonoBehaviour
 	{
 		return _colorComponent != null;
 	}
+
+    public bool IsClearable()
+    {
+        return _clearableGem != null;
+    }
+
+    private void OnMouseDown()
+    {
+        _board.PressedGem(this);
+    }
+
+
 }
