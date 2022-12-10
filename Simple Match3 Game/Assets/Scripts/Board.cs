@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using System.Linq;
+using System;
 
 public class Board : MonoBehaviour
 {
@@ -49,7 +50,7 @@ public class Board : MonoBehaviour
 			}
 		}
     }
-    // Start is called before the first frame update
+
     private void Start()
     {
         for (int x = 0; x < _xDimension; x++)
@@ -71,16 +72,15 @@ public class Board : MonoBehaviour
 			}
 		}
 
-        StartCoroutine(Fill());
+        //StartCoroutine(Fill());
 	}
 
-    // Update is called once per frame
-    private void Update()
-    {
-        
-    }
-
-    public IEnumerator Fill ()
+	public Coroutine StartFill()
+	{
+		return StartCoroutine(Fill());
+	}
+   
+	private IEnumerator Fill ()
     {
         bool needsRefill = true;
 
@@ -96,7 +96,10 @@ public class Board : MonoBehaviour
 			List<Gem> matches = GetMatch();
 			needsRefill = ClearAllValidMatches(matches);
         }
+		OnBoardRefill?.Invoke();
     }
+
+	public event Action OnBoardRefill;
 
     public bool FillStep ()
     {
@@ -135,7 +138,7 @@ public class Board : MonoBehaviour
                 _gems[x, _yDimension - 1] = newPiece.GetComponent<Gem>();
                 _gems[x, _yDimension - 1].Init(x, _yDimension, this, GemTypes.NORMAL);
 				_gems[x, _yDimension - 1].MovableComponent.Move (x, _yDimension - 1, _fillTime);
-                _gems[x, _yDimension - 1].ColorComponent.SetColor((ColorGem.ColorType)Random.Range(0, _gems[x, _yDimension - 1].ColorComponent.NumColors));
+                _gems[x, _yDimension - 1].ColorComponent.SetColor((ColorGem.ColorType)UnityEngine.Random.Range(0, _gems[x, _yDimension - 1].ColorComponent.NumColors));
                 movedGem = true;
 
 			}
@@ -166,9 +169,7 @@ public class Board : MonoBehaviour
     {
         if (gem1.IsMovable() && gem2.IsMovable())
         {
-            
-
-			_gems[gem2.X, gem2.Y] = gem1;
+            _gems[gem2.X, gem2.Y] = gem1;
             _gems[gem1.X, gem1.Y] = gem2;
 			List<Gem> matchedGems1 = GetMatch();
 
@@ -194,16 +195,21 @@ public class Board : MonoBehaviour
 				_gems[gem2.X, gem2.Y] = gem2;
 
 				_pressedGem = null;
-				_dePressedGem=null;
+				_dePressedGem = null;
 			}
-
-            
 		}
-        
     }
 
-    public void PressedGem (Gem gem)
+	public event Action OnPlayerSwapGems;
+
+	public void PressedGem (Gem gem)
     {
+		if (CombatController.GetInstance().State != CombatState.PlayerTurn)
+		{
+			return;
+		}
+
+		OnPlayerSwapGems?.Invoke();
 		if (_pressedGem != null && IsAdjacent(_pressedGem, gem))
 		{
 			_dePressedGem = _pressedGem;
@@ -220,7 +226,7 @@ public class Board : MonoBehaviour
 		 
 	}
 
-    public List<Gem> GetMatch ()
+    private List<Gem> GetMatch ()
     {
         List<Gem> matchedGemList = new List<Gem>();
 
@@ -257,9 +263,7 @@ public class Board : MonoBehaviour
                         {
 							if (_pressedGem == null && _dePressedGem == null)
 							{
-								Debug.Log(matchedGemCount + " in horizontal row1");
-								int randomX = Random.Range(x - matchedGemCount, x);
-								Debug.Log("Ipic at " + randomX + " " + y);
+								int randomX = UnityEngine.Random.Range(x - matchedGemCount, x);
 								_gems[randomX, y].IsEpic = true;
 							}
 							else
@@ -278,9 +282,7 @@ public class Board : MonoBehaviour
 						{
 							if (_pressedGem == null && _dePressedGem == null)
 							{
-								Debug.Log(matchedGemCount + " in horizontal row2");
-								int randomX = Random.Range(x - matchedGemCount, x);
-								Debug.Log("Legendary at " + randomX + " " + y);
+								int randomX = UnityEngine.Random.Range(x - matchedGemCount, x);
 								_gems[randomX, y].IsLegendary = true;
 							}
 							else
@@ -300,6 +302,7 @@ public class Board : MonoBehaviour
                 }
                 if (x == _xDimension - 1 && matchedGemCount > 2)
                 {
+					matchedGroupCount++;
 					for (int i = 1; i <= matchedGemCount; i++)
 					{
 						matchedGemList.Add(_gems[x - matchedGemCount + i, y]);
@@ -308,9 +311,7 @@ public class Board : MonoBehaviour
 					{
 						if (_pressedGem == null && _dePressedGem == null)
 						{
-							Debug.Log(matchedGemCount + " in horizontal row3");
-							int randomX = Random.Range(x - matchedGemCount + 1, x + 1);
-							Debug.Log("Epic at " + randomX + " " + y);
+							int randomX = UnityEngine.Random.Range(x - matchedGemCount + 1, x + 1);
 							_gems[randomX, y].IsEpic = true;
 						}
 						else
@@ -329,9 +330,7 @@ public class Board : MonoBehaviour
 					{
 						if (_pressedGem == null && _dePressedGem == null)
 						{
-							Debug.Log(matchedGemCount + " in horizontal row4");
-							int randomX = Random.Range(x - matchedGemCount + 1, x + 1);
-							Debug.Log("Legendary at " + randomX + " " + y);
+							int randomX = UnityEngine.Random.Range(x - matchedGemCount + 1, x + 1);
 							_gems[randomX, y].IsLegendary = true;
 						}
 						else
@@ -347,7 +346,6 @@ public class Board : MonoBehaviour
 						}
 					}
 				}
-
             }
         }
 
@@ -380,9 +378,7 @@ public class Board : MonoBehaviour
 						{
 							if (_pressedGem == null && _dePressedGem == null)
 							{
-								Debug.Log(matchedGemCount + " in vert row1");
-								int randomY = Random.Range(y - matchedGemCount, y);
-								Debug.Log("Epic at " + x + " " + randomY);
+								int randomY = UnityEngine.Random.Range(y - matchedGemCount, y);
 								_gems[x, randomY].IsEpic = true;
 							}
 							else
@@ -401,9 +397,7 @@ public class Board : MonoBehaviour
 						{
 							if (_pressedGem == null && _dePressedGem == null)
 							{
-								Debug.Log(matchedGemCount + " in vert row2");
-								int randomY = Random.Range(y - matchedGemCount, y);
-								Debug.Log("Legendary at " + x + " " + randomY);
+								int randomY = UnityEngine.Random.Range(y - matchedGemCount, y);
 								_gems[x, randomY].IsLegendary = true;
 							}
 							else
@@ -423,6 +417,7 @@ public class Board : MonoBehaviour
 				}
 				if (y == _yDimension - 1 && matchedGemCount > 2)
 				{
+					matchedGroupCount++;
 					for (int i = 1; i <= matchedGemCount; i++)
 					{
 						matchedGemList.Add(_gems[x, y - matchedGemCount + i]);
@@ -431,9 +426,7 @@ public class Board : MonoBehaviour
 					{
 						if (_pressedGem == null && _dePressedGem == null)
 						{
-							Debug.Log(matchedGemCount + " in vert row3");
-							int randomY = Random.Range(y - matchedGemCount + 1, y + 1);
-							Debug.Log("Epic at " + x + " " + randomY);
+							int randomY = UnityEngine.Random.Range(y - matchedGemCount + 1, y + 1);
 							_gems[x, randomY].IsEpic = true;
 						}
 						else
@@ -453,9 +446,7 @@ public class Board : MonoBehaviour
 						
 						if (_pressedGem == null && _dePressedGem == null)
 						{
-							Debug.Log(matchedGemCount + " in vert row4");
-							int randomY = Random.Range(y - matchedGemCount + 1, y + 1);
-							Debug.Log("Legendary at " + x + " " + randomY);
+							int randomY =	UnityEngine.Random.Range(y - matchedGemCount + 1, y + 1);
 							_gems[x, randomY].IsLegendary = true;
 						}
 						else
@@ -476,18 +467,92 @@ public class Board : MonoBehaviour
 		}
         HashSet<Gem> matchedGemHash = new HashSet<Gem>(matchedGemList);
 		HashSet<Gem> intersectingGems = new HashSet<Gem>(matchedGemList.GroupBy(x => x).Where(g => g.Count() > 1).Select(i => i.Key).ToList());
-        
+        List<Gem> result = matchedGemHash.ToList();
+
         foreach (Gem gem in intersectingGems)
         {
             gem.IsLegendary = true;
         }
 
+
+
 		if (matchedGemHash.Count > 2)
         {
-            return matchedGemHash.ToList();
+            OnMatchFound?.Invoke(result, matchedGroupCount);
+			return result;
 		}
         return null;
     }
+
+	public delegate void MatchFound(List<Gem> matchedGems, int matchedGroupCount);
+	public event MatchFound OnMatchFound;
+
+	private bool FindMatch(Gem[,] gems)
+	{
+		ColorGem.ColorType color;
+
+		//Checking horizontal matches
+		for (int y = 0; y < gems.GetLength(1); y++)
+		{
+			int matchedGemCount = 0;
+			for (int x = 0; x < gems.GetLength(0); x++)
+			{
+
+				if (x == 0)
+					color = gems[x, y].ColorComponent.Color;
+				else
+					color = gems[x - 1, y].ColorComponent.Color;
+
+				if (gems[x, y].ColorComponent.Color == color)
+				{
+					matchedGemCount++;
+				}
+				else
+				{
+					if (matchedGemCount > 2)
+					{
+						return true;
+					}
+				}
+				if (x == gems.GetLength(0) - 1 && matchedGemCount > 2)
+				{
+					return true;
+				}
+			}
+		}
+
+		//Checking vertical matches
+		for (int x = 0; x < gems.GetLength(0); x++)
+		{
+			int matchedGemCount = 0;
+			for (int y = 0; y < gems.GetLength(1); y++)
+			{
+
+				if (y == 0)
+					color = gems[x, y].ColorComponent.Color;
+				else
+					color = gems[x, y - 1].ColorComponent.Color;
+
+				if (gems[x, y].ColorComponent.Color == color)
+				{
+					matchedGemCount++;
+				}
+				else
+				{
+					if (matchedGemCount > 2)
+					{
+						return true;
+					}
+				}
+				if (y == _yDimension - 1 && matchedGemCount > 2)
+				{
+					return true;
+				}
+
+			}
+		}
+		return false;
+	}
 
 	public List<Gem> GetMatch(Gem gem)
 	{
@@ -783,7 +848,6 @@ public class Board : MonoBehaviour
 			{
 				if (_gems[x,y].IsColored() && _gems[x, y].ColorComponent.Color == color && !_gems[x, y].ClearableGem.IsBeingCleared)
 				{
-					
 					ClearGem(_gems[x, y].X, _gems[x, y].Y);
 				}
 			}

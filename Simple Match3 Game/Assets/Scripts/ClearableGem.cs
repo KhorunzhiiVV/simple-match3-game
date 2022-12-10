@@ -1,33 +1,24 @@
+using System;
 using System.Collections;
+using Unity.Android.Types;
 using UnityEngine;
 
 public class ClearableGem : MonoBehaviour
 {
     [SerializeField] private AnimationClip _clearAnimation;
 
+    
     private bool _isBeingCleared = false;
     public bool IsBeingCleared
     { get { return _isBeingCleared; } }
 
-    protected Gem gem;
+    protected Gem _gem;
+    private Player _player;
 
     private void Awake()
     {
-            gem = GetComponent<Gem>();
-    }
-
-
-
-    // Start is called before the first frame update
-    private void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-        
+        _gem = GetComponent<Gem>();
+        _player = FindObjectOfType<Player>();
     }
 
     public virtual void Clear()
@@ -46,6 +37,7 @@ public class ClearableGem : MonoBehaviour
 
             yield return new WaitForSeconds(_clearAnimation.length);
 
+            //_player.Attack(_gem.ColorComponent.Color);
             Destroy(gameObject);
         }
     }

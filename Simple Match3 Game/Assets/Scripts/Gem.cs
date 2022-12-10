@@ -78,19 +78,6 @@ public class Gem : MonoBehaviour
         _clearableGem = GetComponent<ClearableGem>();
     }
 
-
-    // Start is called before the first frame update
-    private void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-        
-    }
-
     public void Init (int x, int y, Board board, Board.GemTypes gemType)
     {
         _x = x;

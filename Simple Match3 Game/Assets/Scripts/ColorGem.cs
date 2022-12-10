@@ -11,7 +11,8 @@ public class ColorGem : MonoBehaviour
         GREEN,
         BLUE,
         YELLOW,
-        MAGENTA
+        MAGENTA,
+        ANY
     }
 
     
@@ -38,10 +39,10 @@ public class ColorGem : MonoBehaviour
 
     private SpriteRenderer _spriteRenderer;
     
-    private ColorType color;
+    private ColorType _color;
     public ColorType Color
     {
-        get { return color; }
+        get { return _color; }
         set { SetColor(value); }
     }
 
@@ -52,15 +53,15 @@ public class ColorGem : MonoBehaviour
 
     public void SetColor(ColorType newColor)
     {
-        color = newColor;
+        _color = newColor;
 
         if (_spriteRendererDict.ContainsKey(newColor))
         {
-            _spriteRenderer.sprite = _spriteRendererDict[color];
+            _spriteRenderer.sprite = _spriteRendererDict[_color];
 		}
 		if (_spriteMaterialDict.ContainsKey(newColor))
 		{
-			_spriteRenderer.material = _spriteMaterialDict[color];
+			_spriteRenderer.material = _spriteMaterialDict[_color];
 		}
 	}
 
@@ -69,34 +70,22 @@ public class ColorGem : MonoBehaviour
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
 
-		_spriteRendererDict = new Dictionary<ColorType, Sprite>();
+        _spriteRendererDict = new Dictionary<ColorType, Sprite>();
         _spriteMaterialDict = new Dictionary<ColorType, Material>();
 
-		for (int i = 0; i < _colorSprites.Length; i++)
+        for (int i = 0; i < _colorSprites.Length; i++)
         {
             if (!_spriteRendererDict.ContainsKey(_colorSprites[i].color))
             {
                 _spriteRendererDict.Add(_colorSprites[i].color, _colorSprites[i].gemSprite);
             }
         }
-		for (int i = 0; i < _spriteMaterials.Length; i++)
-		{
-			if (!_spriteMaterialDict.ContainsKey(_spriteMaterials[i].color))
-			{
-				_spriteMaterialDict.Add(_spriteMaterials[i].color, _spriteMaterials[i].gemMaterial);
-			}
-		}
-	}
-
-    // Start is called before the first frame update
-    private void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-        
+        for (int i = 0; i < _spriteMaterials.Length; i++)
+        {
+            if (!_spriteMaterialDict.ContainsKey(_spriteMaterials[i].color))
+            {
+                _spriteMaterialDict.Add(_spriteMaterials[i].color, _spriteMaterials[i].gemMaterial);
+            }
+        }
     }
 }
